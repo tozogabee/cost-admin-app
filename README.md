@@ -28,28 +28,24 @@ Welcome on us.
         <td>GET request - listing all costs in the database.</td>
     </tr>
     <tr>
-        <td>/api/stats/categories/all"</td>
+        <td>/api/stats/categories/all</td>
         <td>GET request - listing all costs by categories</td>
     </tr>
     <tr>
-        <td>/api/stats/categories/all"</td>
-        <td>GET request - listing all costs by categories</td>
-    </tr>
-    <tr>
-        <td>/api/stats/categories</td>
-        <td>GET request - statistics sum of prices for added category</td>
+        <td>/api/stats/categories?category={category}</td>
+        <td>GET request - listing all costs a category</td>
     </tr>
     <tr>
         <td>/api/stats?fromDate={fromDate}&toDate={toDate}</td>
         <td>GET request - statistics sum of prices per category per month</td>
     </tr>
     <tr>
-        <td>/api/delete/{id}</td>
-        <td>DELETE request - remove an cost by ID.</td>
+        <td>/api/delete</td>
+        <td>DELETE request - remove all costs</td>
     </tr>
     <tr>
-        <td>/api/update</td>
-        <td>UPDATE request - update an entity if this is exists.</td>
+        <td>/api/delete/{id}</td>
+        <td>DELETE request - remove an cost by ID.</td>
     </tr>
     <tr>
         <td>/api/update</td>
