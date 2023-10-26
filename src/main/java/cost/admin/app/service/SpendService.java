@@ -1,5 +1,6 @@
 package cost.admin.app.service;
 
+import cost.admin.app.exception.CategoryNotFoundException;
 import cost.admin.app.exception.EntityNotFoundException;
 import cost.admin.app.model.SpendEntity;
 import cost.admin.app.model.category.ProductCategory;
@@ -72,36 +73,47 @@ public class SpendService {
                 priceMap.put(spendEntity.getCategory(),sumOfPrice);
             } else {
                 priceMap.put(spendEntity.getCategory(), spendEntity.getSum());
+                sumOfPrice = spendEntity.getSum();
             }
         }
         return priceMap;
     }
 
-    public double getSumPriceByCategory(ProductCategory category) {
+    public Map<ProductCategory,Double> getSumPriceByCategory(ProductCategory category) throws CategoryNotFoundException {
         double sumOfPrice = 0;
+        Map<ProductCategory, Double> resultMap = new HashMap<>();
         List<SpendEntity> foundByCategory = this.spendRepository.findSpendEntitiesByCategory(category);
         if(!foundByCategory.isEmpty()) {
             for (SpendEntity actEntity : foundByCategory) {
-                sumOfPrice += actEntity.getSum();
+                if(resultMap.get(actEntity.getCategory()) != null) {
+                    sumOfPrice += actEntity.getSum();
+                    resultMap.put(actEntity.getCategory(),sumOfPrice);
+                } else {
+                    resultMap.put(actEntity.getCategory(), actEntity.getSum());
+                    sumOfPrice = actEntity.getSum();
+                }
             }
+        } else {
+            throw new CategoryNotFoundException("The category missing - "+category);
         }
-        return sumOfPrice;
+        return resultMap;
     }
 
-    public Map<LocalDateTime, Map<ProductCategory, Double>> getSumPriceBeetweenToDates(LocalDateTime fromDate,LocalDateTime toDate) {
+    public Map<String, Map<ProductCategory, Double>> getSumPriceBeetweenToDates(LocalDateTime fromDate,LocalDateTime toDate) {
         List<SpendEntity> allEntitiesBeetweenTwoDates = this.spendRepository.findSpendEntitiesBetweenMonth(fromDate,toDate);
-        Map<LocalDateTime, Map<ProductCategory,Double>> priceListByDate = new HashMap<>();
+        Map<String, Map<ProductCategory,Double>> priceListByDate = new HashMap<>();
         Map<ProductCategory, Double> priceByCategory = new HashMap<>();
         double sumOfPrice = 0;
         for(SpendEntity entity : allEntitiesBeetweenTwoDates) {
-
+            StringBuilder localDateStrBuilder = new StringBuilder(entity.getPaid().getYear()+"-"+entity.getPaid().getMonth());
             if(priceByCategory.get(entity.getCategory()) != null) {
                 sumOfPrice += entity.getSum();
                 priceByCategory.put(entity.getCategory(), sumOfPrice);
-                priceListByDate.put(LocalDateTime.of(entity.getPaid().getYear(),entity.getPaid().getMonth(),entity.getPaid().getDayOfMonth(),0,0),priceByCategory);
+                priceListByDate.put(localDateStrBuilder.toString(),priceByCategory);
             } else {
                 priceByCategory.put(entity.getCategory(), entity.getSum());
-                priceListByDate.put(LocalDateTime.of(entity.getPaid().getYear(),entity.getPaid().getMonth(),entity.getPaid().getDayOfMonth(),0,0),priceByCategory);
+                priceListByDate.put(localDateStrBuilder.toString(),priceByCategory);
+                sumOfPrice = entity.getSum();
             }
         }
 

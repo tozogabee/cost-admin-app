@@ -1,16 +1,20 @@
 package cost.admin.app.model.category;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-
 public enum ProductCategory {
-    HOUSING,
-    TRAVEL,
-    FOOD,
-    UTILITIES,
-    INSURANCE,
-    HEALTHCARE,
-    FINANCIAL,
-    LIFESTYLE,
-    ENTERTAINMENT,
-    MISCELLANEOUS
+    HOUSING("housing"),
+    TRAVEL("travel"),
+    FOOD("food"),
+    UTILITIES("utilities"),
+    INSURANCE("insurance"),
+    HEALTHCARE("healthcare"),
+    FINANCIAL("financial"),
+    LIFESTYLE("lifestyle"),
+    ENTERTAINMENT("entertainment"),
+    MISCELLANEOUS("miscellaneous");
+
+    String name;
+
+    ProductCategory(String name) {
+        this.name = name;
+    }
 }

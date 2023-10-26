@@ -5,9 +5,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyDescription;
-import cost.admin.app.model.Currency;
-import cost.admin.app.model.category.ProductCategory;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -26,8 +23,7 @@ public class SpendDto {
     private String summary;
 
     @JsonProperty(value = "category", required = true)
-    @JsonFormat(shape = JsonFormat.Shape.STRING)
-    private ProductCategory category;
+    private String category;
 
     @JsonProperty(value = "paid", required = true)
     @JsonFormat(pattern="yyyy-MM-ddTHH:mm")
@@ -37,7 +33,6 @@ public class SpendDto {
     private double sum;
 
     @JsonProperty(value = "currency", required = true)
-    @JsonFormat(shape = JsonFormat.Shape.STRING)
-    private Currency currency;
+    private String currency;
 
 }

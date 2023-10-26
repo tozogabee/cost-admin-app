@@ -7,7 +7,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 
-@ComponentScan("cost.admin.app.service")
+@ComponentScan(value = {"cost.admin.app.service","cost.admin.app.controller","cost.admin.app.util"})
 @EntityScan("cost.admin.app.model")
 @EnableJpaRepositories("cost.admin.app.model.repository")
 @SpringBootApplication

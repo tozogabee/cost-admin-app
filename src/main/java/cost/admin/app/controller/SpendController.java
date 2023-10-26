@@ -1,5 +1,6 @@
 package cost.admin.app.controller;
 
+import cost.admin.app.exception.CategoryNotFoundException;
 import cost.admin.app.exception.EntityNotFoundException;
 import cost.admin.app.model.SpendEntity;
 import cost.admin.app.model.category.ProductCategory;
@@ -22,63 +23,63 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+
 @RestController
 @RequestMapping("/api")
 public class SpendController {
 
-    @Autowired
-    private SpendEntityMapper mapper;
+    /*@Autowired
+    private ModelMapper modelMapper;*/
 
     @Autowired
     private SpendService spendService;
 
-    @GetMapping(value = "/all")
+    @GetMapping(value = "/all", produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<List<SpendEntity>> getAllSpendEntities() {
         return ResponseEntity.ok(this.spendService.getAllSpends());
     }
 
-    @PostMapping(value = "/addSpent")
+    @PostMapping(value = "/addSpent", produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<SpendEntity> addNewSpent(@RequestBody SpendDto spendDto) {
-        SpendEntity newEntity = this.mapper.convertToEntityFromDto(spendDto);
+        SpendEntity newEntity = SpendEntityMapper.MAPPER.convertToEntityFromDto(spendDto);
         return ResponseEntity.ok(this.spendService.save(newEntity));
     }
 
-    @DeleteMapping(value = "/delete")
+    @DeleteMapping(value = "/delete", produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> deleteAllEntities() {
         this.spendService.deleteAllEntities();
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping(value = "/delete/{id}")
+    @DeleteMapping(value = "/delete/{id}", produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> deleteEntityById(@PathVariable long id) throws EntityNotFoundException {
        this.spendService.deleteEntity(id);
        return ResponseEntity.ok().build();
     }
 
-    @PutMapping(value = "/update")
+    @PutMapping(value = "/update", produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<SpendEntity> updateEntity(@RequestBody SpendDto spendDto) throws EntityNotFoundException {
-        SpendEntity updateTableEntity = mapper.convertToEntityFromDto(spendDto);
+        SpendEntity updateTableEntity = SpendEntityMapper.MAPPER.convertToEntityFromDto(spendDto);
         return ResponseEntity.ok(this.spendService.update(updateTableEntity));
     }
 
-    @GetMapping(value = "/stats/categories")
+    @GetMapping(value = "/stats/categories/all", produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<Map<ProductCategory,Double>> statsByCategories() {
         List<SpendEntity> spendEntities = this.spendService.getAllSpends();
         Map<ProductCategory, Double> priceMap = this.spendService.priceListByCategories(spendEntities);
         return ResponseEntity.ok(priceMap);
     }
 
-    @GetMapping(value="/stats/categories")
-    public ResponseEntity<Double> statsByGivenCategory(@RequestParam ProductCategory category) {
-        return  ResponseEntity.ok(this.spendService.getSumPriceByCategory(category));
+    @GetMapping(value="/stats/categories", produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity<Map<ProductCategory,Double>> statsByGivenCategory(@RequestParam ProductCategory category) throws CategoryNotFoundException {
+        return ResponseEntity.ok(this.spendService.getSumPriceByCategory(category));
     }
 
-    @GetMapping(value = "/stats/")
-    public ResponseEntity<Map<LocalDateTime, Map<ProductCategory, Double>>> statsByBetweenTwoDates(@RequestParam("fromDate") LocalDateTime fromDate, @RequestParam("toDate") LocalDateTime toDate){
-        Map<LocalDateTime, Map<ProductCategory,Double>> sumBetweenTwoDates = this.spendService.getSumPriceBeetweenToDates(fromDate,toDate);
+    @GetMapping(value = "/stats", produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity<Map<String, Map<ProductCategory, Double>>> statsByBetweenTwoDates(@RequestParam("fromDate") LocalDateTime fromDate, @RequestParam("toDate") LocalDateTime toDate){
+        Map<String, Map<ProductCategory,Double>> sumBetweenTwoDates = this.spendService.getSumPriceBeetweenToDates(fromDate,toDate);
         return ResponseEntity.ok(sumBetweenTwoDates);
     }
-
-
 
 }
