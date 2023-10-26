@@ -1,6 +1,7 @@
 package cost.admin.app.model;
 
 import cost.admin.app.model.category.ProductCategory;
+import cost.admin.app.model.currency.Currency;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

@@ -1,6 +1,6 @@
 package cost.admin.app.util;
 
-import cost.admin.app.model.Currency;
+import cost.admin.app.model.currency.Currency;
 import cost.admin.app.model.SpendEntity;
 import cost.admin.app.model.category.ProductCategory;
 import cost.admin.app.model.input.SpendDto;

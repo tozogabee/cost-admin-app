@@ -28,10 +28,6 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @RestController
 @RequestMapping("/api")
 public class SpendController {
-
-    /*@Autowired
-    private ModelMapper modelMapper;*/
-
     @Autowired
     private SpendService spendService;
 

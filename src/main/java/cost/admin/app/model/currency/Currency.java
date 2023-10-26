@@ -1,4 +1,4 @@
-package cost.admin.app.model;
+package cost.admin.app.model.currency;
 
 public enum Currency {
 
