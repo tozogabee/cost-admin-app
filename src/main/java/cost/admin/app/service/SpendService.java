@@ -10,10 +10,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 @Service
 public class SpendService {
@@ -65,34 +66,19 @@ public class SpendService {
     }
 
     public Map<ProductCategory,Double> priceListByCategories(List<SpendEntity> spendEntities) {
-        Map<ProductCategory, Double> priceMap = new HashMap<>();
-        double sumOfPrice = 0;
-        for(SpendEntity spendEntity : spendEntities) {
-            if(priceMap.get(spendEntity.getCategory()) != null) {
-                sumOfPrice += spendEntity.getSum();
-                priceMap.put(spendEntity.getCategory(),sumOfPrice);
-            } else {
-                priceMap.put(spendEntity.getCategory(), spendEntity.getSum());
-                sumOfPrice = spendEntity.getSum();
-            }
-        }
-        return priceMap;
+        return spendEntities.stream()
+                .collect(Collectors.toMap(
+                        x -> x.getCategory(),
+                        x -> x.getSum(),
+                        (x,y) -> x.doubleValue() + y.doubleValue()
+                ));
     }
 
     public Map<ProductCategory,Double> getSumPriceByCategory(ProductCategory category) throws CategoryNotFoundException {
-        double sumOfPrice = 0;
-        Map<ProductCategory, Double> resultMap = new HashMap<>();
+        Map<ProductCategory, Double> resultMap = new ConcurrentHashMap<>();
         List<SpendEntity> foundByCategory = this.spendRepository.findSpendEntitiesByCategory(category);
         if(!foundByCategory.isEmpty()) {
-            for (SpendEntity actEntity : foundByCategory) {
-                if(resultMap.get(actEntity.getCategory()) != null) {
-                    sumOfPrice += actEntity.getSum();
-                    resultMap.put(actEntity.getCategory(),sumOfPrice);
-                } else {
-                    resultMap.put(actEntity.getCategory(), actEntity.getSum());
-                    sumOfPrice = actEntity.getSum();
-                }
-            }
+            resultMap = priceListByCategories(foundByCategory);
         } else {
             throw new CategoryNotFoundException("The category missing - "+category);
         }
@@ -101,22 +87,10 @@ public class SpendService {
 
     public Map<String, Map<ProductCategory, Double>> getSumPriceBeetweenToDates(LocalDateTime fromDate,LocalDateTime toDate) {
         List<SpendEntity> allEntitiesBeetweenTwoDates = this.spendRepository.findSpendEntitiesBetweenMonth(fromDate,toDate);
-        Map<String, Map<ProductCategory,Double>> priceListByDate = new HashMap<>();
-        Map<ProductCategory, Double> priceByCategory = new HashMap<>();
-        double sumOfPrice = 0;
-        for(SpendEntity entity : allEntitiesBeetweenTwoDates) {
-            StringBuilder localDateStrBuilder = new StringBuilder(entity.getPaid().getYear()+"-"+entity.getPaid().getMonth());
-            if(priceByCategory.get(entity.getCategory()) != null) {
-                sumOfPrice += entity.getSum();
-                priceByCategory.put(entity.getCategory(), sumOfPrice);
-                priceListByDate.put(localDateStrBuilder.toString(),priceByCategory);
-            } else {
-                priceByCategory.put(entity.getCategory(), entity.getSum());
-                priceListByDate.put(localDateStrBuilder.toString(),priceByCategory);
-                sumOfPrice = entity.getSum();
-            }
-        }
-
+        Map<String, Map<ProductCategory,Double>> priceListByDate = new ConcurrentHashMap<>();
+        priceListByDate = allEntitiesBeetweenTwoDates.stream()
+                .collect(Collectors.groupingBy(e -> e.getPaid().getYear()+"-"+e.getPaid().getMonth(),
+                        Collectors.toMap(f -> f.getCategory(), SpendEntity::getSum, (x,y) -> x.doubleValue() + y.doubleValue())));
         return priceListByDate;
     }
 
